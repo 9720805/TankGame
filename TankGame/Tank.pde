@@ -1,22 +1,52 @@
 class Tank {
-  int x,y,w,h,speed,health;
-  PImage t1;
+  float x, y, w, h, speed, health;
+  PImage iTankW, iTankA, iTankS, iTankD;
+  char idir;
+int turretCount, laserCount;
+
+  //constructor
   Tank() {
     x = 100;
     y = 100;
     w = 100;
     h = 100;
-    speed = 2;
+    speed = 5;
     health = 100;
-    t1 = loadImage("tank2.png");
+    iTankW = loadImage("tankW.png");
+    iTankA = loadImage("tankA.png");
+    iTankS = loadImage("tankS.png");
+    iTankD = loadImage("tankD.png");
+    idir = 'w';
+    turretCount = 1;
+    laserCount = 100;
   }
-  
   void display() {
     imageMode(CENTER);
-    image(t1,x,y);
+    if (idir == 'w') {
+      image(iTankW, x, y);
+      println("w");
+    } else if (idir == 'a') {
+      image(iTankA, x, y);
+      println("a");
+    } else if (idir == 's') {
+      image(iTankS, x, y);
+    } else if (idir == 'd') {
+      image(iTankD, x, y);
+    }
   }
-  
-  void move() {
-  x =x+speed;
-  }
+  void move(char idir) {
+    if (idir == 'w') {
+      idir = 'w';
+      y = y - speed;
+    } else if (idir == 's') {
+      idir = 's';
+      y = y + speed;
+    } else if (idir == 'a') {
+      idir = 'a';
+      x = x - speed;
+    } else if (idir == 'd') {
+      idir = 'd';
+      x = x + speed;
+    }
+  }  
 }
