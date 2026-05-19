@@ -1,16 +1,20 @@
 //Logan Dillworth | Tank Game
-PImage bg;
+PImage bg, startScreen,GameOver;
 Tank tank1;
 ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 ArrayList<Obstacle> obstacles = new ArrayList<Obstacle>();
 ArrayList<PowerUp> powerups = new ArrayList<PowerUp>();
 int score;
 Timer obsTimer, puTimer;
- 
+boolean play;
+
 void setup() {
   size(500, 500);
   bg = loadImage("bg1.png");
+  GameOver = loadImage("GameOver.png");
   tank1 = new Tank();
+  play = false;
+  startScreen = loadImage("startscreen.png");
   score = 0;
   obsTimer = new Timer(1000);
   obsTimer.start();
@@ -19,77 +23,83 @@ void setup() {
 }
 
 void draw() {
-  background(127);
-  imageMode(CORNER);
-  image(bg, 0, 0);
-  // Add timer to distribute obstacles
-  if (obsTimer.isFinished()) {
-    obstacles.add(new Obstacle(-100, int(random(height))));
-    obsTimer.start();
-  }
-  if (puTimer.isFinished()) {
-    powerups.add(new PowerUp());
-    puTimer.start();
-  }
-  for (int i = 0; i < powerups.size(); i++) {
-    PowerUp pu = powerups.get(i);
-    pu.display();
-    pu.move();
-  
-    if (pu.reachedSide()) {
-      powerups.remove(pu);
-      if (pu.intersect(tank1)) {
-        if (pu.type == 'h') {
-          tank1.health = tank1.health = 100;
-          powerups.remove(pu);
-        } else if (pu.type == 'a') {
-          tank1.laserCount = tank1.laserCount = 100;
+  if (play == false) {
+    startScreen();
+  } else {
+    background(127);
+    imageMode(CORNER);
+    image(bg, 0, 0);
+    // Add timer to distribute obstacles
+    if (obsTimer.isFinished()) {
+      obstacles.add(new Obstacle(-100, int(random(height))));
+      obsTimer.start();
+    }
+    if (puTimer.isFinished()) {
+      powerups.add(new PowerUp());
+      puTimer.start();
+    }
+    for (int i = 0; i < powerups.size(); i++) {
+      PowerUp pu = powerups.get(i);
+      pu.display();
+      pu.move();
+
+      if (pu.reachedSide()) {
+        powerups.remove(pu);
+        if (pu.intersect(tank1)) {
+          if (pu.type == 'h') {
+            tank1.health = tank1.health = 100;
+            powerups.remove(pu);
+          } else if (pu.type == 'a') {
+            tank1.laserCount = tank1.laserCount = 100;
+            powerups.remove(pu);
+          }
+        } else if (pu.type == 't') {
+          tank1.turretCount = tank1.turretCount = 1;
           powerups.remove(pu);
         }
-      } else if (pu.type == 't') {
-        tank1.turretCount = tank1.turretCount = 1;
-        powerups.remove(pu);
       }
     }
-  }
-  //obstacle.add(new Obstacle(250, 250));
+    //obstacle.add(new Obstacle(250, 250));
 
-  //displaying Obstacles
-  for (int i = 0; i < obstacles.size(); i++) {
-    Obstacle obs = obstacles.get(i);
-    obs.display();
-    obs.move();
-    if (obs.intersect(tank1)) {
-      tank1.health = tank1.health - 25;
-      obstacles.remove(obs);
+    //displaying Obstacles
+    for (int i = 0; i < obstacles.size(); i++) {
+      Obstacle obs = obstacles.get(i);
+      obs.display();
+      obs.move();
+      if (obs.intersect(tank1)) {
+        tank1.health = tank1.health - 25;
+        obstacles.remove(obs);
+      }
+      if (obs.reachedSide()) {
+        obstacles.remove(i);
+      }
     }
-    if (obs.reachedSide()) {
-      obstacles.remove(i);
-    }
-  }
     for (int i = 0; i < projectiles.size(); i++) {
-    Projectile p = projectiles.get(i);
-    p.display();
-    p.move(); 
-    if (p.intersect(tank1)) {
-      tank1.health = tank1.health - 25;
-      obstacles.remove(p);
+      Projectile p = projectiles.get(i);
+      p.display();
+      p.move();
+      if (p.intersect(tank1)) {
+        tank1.health = tank1.health - 25;
+        obstacles.remove(p);
+      }
+      //   if (p.reachedSide()) {
+      //     obstacles.remove(i);
+      //   }
     }
- //   if (p.reachedSide()) {
- //     obstacles.remove(i);
- //   }
+    //displaying Projectiles
+
+
+    tank1.display();
+
+
+    scorePanel();
+    println("Objects in Memory:"+obstacles.size());
+    println("Projectiles in Memory:"+projectiles.size());
+    if(tank1.health < 1){
+    GameOver();
+    }
   }
-  //displaying Projectiles
-
-
-  tank1.display();
-
-
-  scorePanel();
-  println("Objects in Memory:"+obstacles.size());
-  println("Projectiles in Memory:"+projectiles.size());
 }
-
 
 void scorePanel() {
   fill(127, 127);
@@ -99,9 +109,10 @@ void scorePanel() {
   textSize(30);
   textAlign(CENTER);
   text("Score:" + score, width/2, 30);
-    text("Health:" + tank1.health, width/2-150, 30);
+  text("Health:" + tank1.health, width/2-150, 30);
   text("Ammo:" + tank1.laserCount, width/2+150, 30);
 }
+
 
 void keyPressed() {
   if (key == 'w') {
@@ -127,4 +138,16 @@ void mousePressed() {
     projectiles.add(new Projectile(int(tank1.x), int(tank1.y)));
   }
   //projectiles.add(new Projectile(int(tank1.x), int(tank1.y)));
+}
+void GameOver() {
+  imageMode(CORNER);
+  image(GameOver, 0, 0);
+  text("Score Achieved: " + score,200,300);
+ noLoop();
+  }
+void startScreen() {
+  image(startScreen, 0, 0);
+  if (keyPressed) {
+    play = true;
+  }
 }
